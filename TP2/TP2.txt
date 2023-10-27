@@ -1,0 +1,62 @@
+Question 1 :
+
+struct iphdr
+  {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+    unsigned int ihl:4;
+    unsigned int version:4;
+#elif __BYTE_ORDER == __BIG_ENDIAN
+    unsigned int version:4;
+    unsigned int ihl:4;
+#else
+# error	"Please fix <bits/endian.h>"
+#endif
+    uint8_t tos;
+    uint16_t tot_len;
+    uint16_t id;
+    uint16_t frag_off;
+    uint8_t ttl;
+    uint8_t protocol;
+    uint16_t check;
+    uint32_t saddr;
+    uint32_t daddr;
+    /*The options start here. */
+};
+
+En cherchant sur internet, on a les informations de la trame dans la RFC 791 de l'IETF qui définit le format standard de l'en-tête.
+
+La trame possède toutes les informations de bit pour chaque élément. 
+La version est avant l'IHL, dans la structure le if et elif permette d'avoir le bon ordre. Les 2 ont une taille de 4 bits.
+Le tos (Type of Services) doit posséder 8 bits, dans la struct iphdr on a bien la même chose.
+Frag_off doit avoir 13 bits, on a une taille de 16 bits dans la structure donc c'est bon.
+Les adresses sont aussi de la bonne taille.
+Ensuite les options sont de taille variables donc pas spécifié.
+
+Question 2 :
+
+struct icmphdr
+{
+  uint8_t type;		/* message type */
+  uint8_t code;		/* type sub-code */
+  uint16_t checksum;
+  union
+  {
+    struct
+    {
+      uint16_t	id;
+      uint16_t	sequence;
+    } echo;			/* echo datagram */
+    uint32_t	gateway;	/* gateway address */
+    struct
+    {
+      uint16_t	__glibc_reserved;
+      uint16_t	mtu;
+    } frag;			/* path mtu discovery */
+  } un;
+};
+
+En cherchant sur internet, on a les informations de la trame dans la RFC 792 de l'IETF.
+Dans la trame on a les informations de type, code et checksum qui sont bons,
+cependant ce qui apparait dans l'union de la structure icmphdr n'est pas dans la trame.
+Ces éléments décrivent les différents types de messages icmp.
+
